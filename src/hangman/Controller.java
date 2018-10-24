@@ -2,56 +2,56 @@ package hangman;
 
 import hangman.drawables.Gallow;
 import hangman.drawables.GameGUI;
+import hangman.drawables.elements.Text;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Random;
 
 /*************
  **************  MADE BY LARS MORTEN BEK | Assignment 5 | Hangman
+ *  This script is all written by me, i'm an experienced programmer ;-)
+ *  Look forward to my miniproject
  *************/
 
 public class Controller {
-    Stage stage;
-    Group root;
-    Scene scene;
-    Canvas canvas;
-    GraphicsContext gc;
-    ArrayList<String> input = new ArrayList<String>();
+    // Scene and Graphics
+    private Stage stage;
+    private Group root;
+    public Scene scene;
+    private Canvas canvas;
+    private GraphicsContext gc;
+    public ArrayList<String> input = new ArrayList<String>();
+    private ArrayList<Drawable> drawables = new ArrayList<Drawable>();
 
-    ArrayList<Drawable> drawables = new ArrayList<Drawable>();
-    GameGUI gameGUI = new GameGUI(50,50, drawables);
+    // Game
+    private String[] words = new String[]{"Citron", "Æble", "Pære", "Banan", "Melon", "Appelsin", "Blomme", "Fersken", "Ananas","Kiwi"};
+    private Random random = new Random();
+    private int n =  random.nextInt(words.length);
+    private ArrayList<String> word = new ArrayList<String>(); // the reason why word is an arraylist, is because we want to use the contain method
+    private boolean[] guessed;
+    private Gallow gallow;
+    private int state = 0;
 
+    // GameGUI
+    private GameGUI gameGUI = new GameGUI(50,50, drawables);
 
-
-
-    Random random = new Random();
-
-    String[] words = new String[]{"Citron", "Æble", "Pære", "Banan", "Melon", "Appelsin", "Blomme", "Fersken", "Ananas","Kiwi"};
-
-    int n =  random.nextInt(words.length);
-
-    String[] word = words[n].split("");
-
-    boolean[] guessed = new boolean[word.length];
-
-    Gallow gallow;
-
-
-    int state = 0;
-
+    // Controller Constructor
     public Controller(Stage stage, Group root, Scene scene, Canvas canvas) {
+        // Stage & Group(root)
         this.stage = stage;
         this.root = root;
-        this.scene = scene;
 
         // Scene
-        stage.setScene( scene );
+        this.scene = scene;
+        stage.setScene(scene);
 
         // Canvas
         this.canvas = canvas;
@@ -60,90 +60,65 @@ public class Controller {
 
         // Finish stage, open window and take inputs
         stage.show();
+    }
 
-
+    public void gameSetup(){
+        String[] l = words[n].split("");
+        for(int i = 0; i<l.length;i++) {
+            word.add(l[i].toLowerCase());
+        }
+        guessed = new boolean[word.size()];
     }
 
     public void draw() {
-        drawables.clear();
-        drawables.add(gameGUI);
+        // Graphics
+        drawables.clear(); // Reset
+        drawables.add(gameGUI); // Add GameGUI
 
-        gallow = nygalje();
-
-        drawables.add(gallow);
-
+        // Gallow
+        gallow = new Gallow(200, 200, state, drawables, guessed, word);
+        drawables.add(gallow); // Add gallow to graphics
 
         for (int i = 0; i < drawables.size(); i++) {
-            drawables.get(i).draw(gc);
-            System.out.println(drawables.get(i).getClass());;
+            drawables.get(i).draw(gc); // Draw all the graphics
         }
-
     }
 
-    public Gallow nygalje(){
-        String s = "";
-        for(int i = 0; word.length>i;i++){
-            if(guessed[i]) {
-                s +=word[i];
-            } else {
+    // Game is updated when input is sent from the keyboard
+    public void updateGame(KeyEvent keyEvent){
 
-                s += "*";
-
-            }
+        if(!gameGUI.gameEnded&&keyEvent.getText().matches("^(?:([a-ø])(?!.*\\1))+$")){
+            guess(keyEvent.getText()); // make a guess
         }
-        return new Gallow(200, 200, s, state, drawables);
+
+        if(!gallow.word.text.contains("*")) {
+            drawables.add(new Text("You Won", 400, 300, 30, Color.BLACK, FontWeight.BOLD));
+            gameGUI.won = true;
+            gameGUI.gameEnded = true;
+        }
+
+        draw(); // clear and draw the scene again
     }
 
-    public void game(KeyEvent keyEvent){
+    public void guess(String letter) {
+        if (!word.contains(letter)&&!gameGUI.guessedLetters.contains(letter)) {
+            gameGUI.guessedLetters.add(letter);
+            gameGUI.incorrect++;
+            state++;
+        }
 
-        gallow = nygalje();
-        gallow.text.text = "";
-        System.out.print("Du gættede på ");
-        for(int i = 0; i < word.length; i++) {
-
-            if(word[i].toLowerCase().contains(keyEvent.getText())||guessed[i]) {
-                System.out.print(word[i]);
-                gallow.text.text += word[i];
+        // reset word, then create new word from letters in for-loop
+        gallow.word.text = "";
+        for(int i = 0; i < word.size(); i++) {
+            if(word.get(i).contains(letter)||guessed[i]) {
+                gallow.word.text += word.get(i);
                 guessed[i] = true;
             } else {
-                gallow.text.text += "*";
-                System.out.print("*");
+                gallow.word.text += "*";
                 guessed[i] = false;
             }
         }
 
-
-        System.out.println();
-
-
-
-        if(keyEvent.getCode() == KeyCode.A){
-            state++;
-        }
-
-        draw();
-
-
     }
 }
-    /***
-    void input(KeyEvent keyEvent) {
-        if (keyEvent.getCharacter().matches("[^\\e\t\r\\d+$]")) {
-
-            if (keyEvent.getCode() == KeyCode.BACK_SPACE) {
-
-            } else {
-
-                keyEvent.consume();
-            }
-        }
-    }
-
-        theScene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.A) {
-                System.out.println("A key was pressed");
-            }
-        });
-
-****/
 

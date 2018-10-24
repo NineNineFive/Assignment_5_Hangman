@@ -1,15 +1,15 @@
 package hangman;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /*************
 **************  MADE BY LARS MORTEN BEK | Assignment 5 | Hangman
+ *  This script is all written by me, i'm an experienced programmer ;-)
+ *  Look forward to my miniproject
 *************/
 
 public class Main extends Application {
@@ -30,35 +30,26 @@ public class Main extends Application {
         );
 
         // Run methods
+        controller.gameSetup();
         controller.draw();
 
         // Check for input on KeyPressed
-        controller.scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
-            public void handle(KeyEvent e) {
+        controller.scene.setOnKeyPressed(e -> {
                 String code = e.getCode().toString();
 
-                // action
-                controller.game(e);
-
-                // print input in console
-                System.out.println(code);
-
-
-
+                // Make an action in the game
+                controller.updateGame(e);
 
                 // prevent duplicates
                 if ( !controller.input.contains(code) ) {
                     controller.input.add(code);
                 }
-            }
         });
 
         // Check for input on KeyReleased
-        controller.scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent e) {
+        controller.scene.setOnKeyReleased(e -> {
                 String code = e.getCode().toString();
                 controller.input.remove( code );
-            }
         });
 
     }

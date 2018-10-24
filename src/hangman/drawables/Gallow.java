@@ -12,17 +12,25 @@ import java.util.ArrayList;
 
 public class Gallow implements Drawable {
     public int x,y, state;
-    public Text text = new Text("", 400, 400, 30, Color.BLACK, FontWeight.NORMAL);
+
+    public Text word = new Text("<word>", 400, 400, 30, Color.BLACK, FontWeight.NORMAL);
     public ArrayList<Drawable> drawables;
 
-    public Gallow (int x, int y, String word ,int state, ArrayList<Drawable> drawables){
+    public Gallow (int x, int y ,int state, ArrayList<Drawable> drawables, boolean[] guessed, ArrayList<String> word){
         this.drawables = drawables;
         this.x = x;
         this.y = y;
 
-
-        this.text.text = word;
         this.state = state;
+        String s = "";
+        for(int i = 0; word.size()>i;i++){
+            if(guessed[i]) {
+                s +=word.get(i);
+            } else {
+                s += "*";
+            }
+        }
+        this.word.text = s;
     }
 
     @Override
@@ -30,11 +38,8 @@ public class Gallow implements Drawable {
         int canvasWidth = (int)gc.getCanvas().getWidth();
         int canvasHeight = (int)gc.getCanvas().getHeight();
 
-
-
-
-        System.out.println("las er femf");
-        drawables.add(text);
+        drawables.add(new Text("Gæt frugten eller bliv hængt:", 400, 360, 24, Color.BLACK, FontWeight.BOLD));
+        drawables.add(word);
 
         if(state>=1) {
             // 1 (wood)
