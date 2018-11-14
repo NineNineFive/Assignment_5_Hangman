@@ -8,8 +8,6 @@ import javafx.stage.Stage;
 
 /*************
 **************  MADE BY LARS MORTEN BEK | Assignment 5 | Hangman
- *  This script is all written by me, i'm an experienced programmer ;-)
- *  Look forward to my miniproject
 *************/
 
 public class Main extends Application {
